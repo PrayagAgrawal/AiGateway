@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+
+  backend:
+    build: ./ai-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/aigateway
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATA_REDIS_HOST: redis
+
+  frontend:
+    build: ./ai-gateway-ui
+    ports:
+      - "3000:5173"
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: ankane/pgvector
+    environment:
+      POSTGRES_DB: aigateway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  embedding:
+    build: ./embedding-service
+    ports:
+      - "8000:8000"
